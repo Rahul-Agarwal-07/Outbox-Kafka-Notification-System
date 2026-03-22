@@ -1,9 +1,9 @@
-package com.cleanarch.infrastructure.out.persistence.repository;
+package com.cleanarch.infrastructure.outbox.persistence.repository;
 import com.cleanarch.application.outbox.port.OutboxRepositoryPort;
 import com.cleanarch.domain.model.OutboxEvent;
 import com.cleanarch.domain.model.OutboxStatus;
-import com.cleanarch.infrastructure.out.persistence.entity.OutboxEventEntity;
-import com.cleanarch.infrastructure.out.persistence.mapper.OutboxMapper;
+import com.cleanarch.infrastructure.outbox.persistence.entity.OutboxEventEntity;
+import com.cleanarch.infrastructure.outbox.persistence.mapper.OutboxMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

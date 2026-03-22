@@ -2,11 +2,14 @@ package com.cleanarch.application.notification.usecase;
 
 import com.cleanarch.application.consumer.dto.EventMessage;
 import com.cleanarch.application.notification.port.EmailSenderPort;
-import com.cleanarch.application.notification.port.NotificationCommand;
 import com.cleanarch.application.notification.port.NotificationRepositoryPort;
 import com.cleanarch.application.notification.port.SendEmailUseCasePort;
+import com.cleanarch.domain.model.Notification;
+import com.cleanarch.domain.model.NotificationStatus;
 import com.cleanarch.domain.model.NotificationType;
+import jakarta.transaction.Transactional;
 
+@Transactional
 public class SendEmailUseCase implements SendEmailUseCasePort {
 
     private final NotificationRepositoryPort notificationRepository;
@@ -23,10 +26,11 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
         NotificationType type = mapEventToNotification(event);
 
         boolean reserved = notificationRepository.tryInsert(
-                new NotificationCommand(
+                new Notification(
                         event.id(),
-                        type,
-                        event.payload()
+                        event.payload(),
+                        NotificationStatus.PENDING,
+                        type
                 )
         );
 
@@ -38,7 +42,7 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
         }
         catch (Exception e)
         {
-            notificationRepository.markAsFailed(event.id(), e.getMessage());
+            notificationRepository.markAsFailed(event.id(), e.getCause().getMessage());
             throw e;
         }
 
@@ -50,6 +54,7 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
         {
             case WELCOME_EMAIL -> emailSender.sendWelcomeEmail(event.payload());
             case SECURITY_ALERT -> emailSender.sendSecurityAlert(event.payload());
+            default -> throw new IllegalStateException("Unsupported NotificationType");
         }
 
     }

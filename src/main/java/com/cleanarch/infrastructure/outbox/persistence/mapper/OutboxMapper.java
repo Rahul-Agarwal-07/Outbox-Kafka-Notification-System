@@ -1,9 +1,9 @@
-package com.cleanarch.infrastructure.out.persistence.mapper;
+package com.cleanarch.infrastructure.outbox.persistence.mapper;
 
 import com.cleanarch.domain.model.EventType;
 import com.cleanarch.domain.model.OutboxEvent;
 import com.cleanarch.domain.model.OutboxStatus;
-import com.cleanarch.infrastructure.out.persistence.entity.OutboxEventEntity;
+import com.cleanarch.infrastructure.outbox.persistence.entity.OutboxEventEntity;
 
 public class OutboxMapper {
 

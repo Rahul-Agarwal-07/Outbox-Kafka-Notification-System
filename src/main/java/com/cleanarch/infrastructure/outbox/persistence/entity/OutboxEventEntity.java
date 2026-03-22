@@ -1,6 +1,5 @@
-package com.cleanarch.infrastructure.out.persistence.entity;
+package com.cleanarch.infrastructure.outbox.persistence.entity;
 
-import com.cleanarch.domain.model.OutboxStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
