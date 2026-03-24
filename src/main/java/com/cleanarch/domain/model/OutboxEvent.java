@@ -96,6 +96,8 @@ public class OutboxEvent {
         return processedAt;
     }
 
+    public String getErrorMessage() { return errorMessage; }
+
     // Setters
     public void markProcessing() {
 
@@ -118,7 +120,7 @@ public class OutboxEvent {
         if(this.status != OutboxStatus.PROCESSING)
             throw new InvalidOutboxStateException("Only Processing Events can fail");
 
-        this.status = OutboxStatus.FAILED;
+        this.status = OutboxStatus.DEAD;
         this.retryCount = (retryCount == null) ? 1 : retryCount + 1;
         this.errorMessage = error;
 

@@ -7,9 +7,8 @@ import com.cleanarch.application.notification.port.SendEmailUseCasePort;
 import com.cleanarch.domain.model.Notification;
 import com.cleanarch.domain.model.NotificationStatus;
 import com.cleanarch.domain.model.NotificationType;
-import jakarta.transaction.Transactional;
+import org.springframework.core.NestedExceptionUtils;
 
-@Transactional
 public class SendEmailUseCase implements SendEmailUseCasePort {
 
     private final NotificationRepositoryPort notificationRepository;
@@ -25,27 +24,41 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
 
         NotificationType type = mapEventToNotification(event);
 
-        boolean reserved = notificationRepository.tryInsert(
-                new Notification(
-                        event.id(),
-                        event.payload(),
-                        NotificationStatus.PENDING,
-                        type
-                )
+        Notification newNotification = new Notification(
+                event.id(),
+                event.payload(),
+                NotificationStatus.PENDING,
+                type
         );
 
-        if(!reserved) return;
+        boolean inserted = notificationRepository.tryInsert(newNotification);
 
-        try {
-            send(type, event);
-            notificationRepository.markAsSent(event.id());
-        }
-        catch (Exception e)
+        Notification notification = inserted ?
+                newNotification :
+                notificationRepository.findById(event.id()).orElseThrow();
+
+
+        NotificationStatus status = notification.getStatus();
+
+        if(status == NotificationStatus.SENT)
         {
-            notificationRepository.markAsFailed(event.id(), e.getCause().getMessage());
-            throw e;
+            // already processed and workflow is completed
+            return;
         }
 
+        if(status == NotificationStatus.PENDING || status == NotificationStatus.FAILED)
+        {
+            try {
+                send(type, event);
+                notificationRepository.markAsSent(event.id());
+            }
+            catch (Exception e)
+            {
+                String error = NestedExceptionUtils.getMostSpecificCause(e).getMessage();
+                notificationRepository.markAsFailed(event.id(), error);
+                throw e;
+            }
+        }
     }
 
     private void send(NotificationType type, EventMessage event) {

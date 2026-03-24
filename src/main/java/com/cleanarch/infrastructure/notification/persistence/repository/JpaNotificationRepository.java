@@ -7,6 +7,4 @@ import java.util.UUID;
 
 public interface JpaNotificationRepository extends JpaRepository<NotificationEntity, UUID> {
 
-
-
 }

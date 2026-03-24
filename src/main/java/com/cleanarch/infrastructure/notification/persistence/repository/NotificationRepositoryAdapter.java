@@ -7,7 +7,10 @@ import com.cleanarch.domain.model.NotificationStatus;
 import com.cleanarch.infrastructure.notification.persistence.entity.NotificationEntity;
 import com.cleanarch.infrastructure.notification.persistence.mapper.NotificationMapper;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.Optional;
 import java.util.UUID;
 
 public class NotificationRepositoryAdapter implements NotificationRepositoryPort {
@@ -21,6 +24,15 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
+    public Optional<Notification> findById(UUID eventId) {
+
+        return jpaNotificationRepository.findById(eventId)
+                .map(NotificationMapper::toDomain);
+
+    }
+
+    @Override
+    @Transactional
     public boolean tryInsert(Notification notification) {
 
         try {
@@ -36,6 +48,7 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
+    @Transactional
     public void markAsFailed(UUID eventId, String error) {
 
         entityManager.createQuery(
@@ -54,13 +67,14 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
     }
 
     @Override
+    @Transactional
     public void markAsSent(UUID eventId) {
         entityManager.createQuery(
                      """
                             UPDATE NotificationEntity n
                             SET n.status = :status,                           
                                 n.updatedAt = CURRENT_TIMESTAMP
-                            WHERE n.eventId = :eventId
+                            WHERE n.eventId = :eventId AND n.status != 'SENT'
                         """
                 )
                 .setParameter("status", NotificationStatus.SENT.name())

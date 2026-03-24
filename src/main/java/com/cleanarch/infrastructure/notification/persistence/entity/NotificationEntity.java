@@ -73,4 +73,34 @@ public class NotificationEntity {
     public void setError(String error) {
         this.errorMessage = error;
     }
+
+    // Getters
+
+    public UUID getEventId() {
+        return eventId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

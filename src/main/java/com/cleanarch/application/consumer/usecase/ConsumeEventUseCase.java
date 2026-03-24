@@ -8,7 +8,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 public class ConsumeEventUseCase implements ConsumeEventUseCasePort {
 
-
     private final ProcessedEventRepositoryPort processedEventRepository;
 
     public ConsumeEventUseCase(ProcessedEventRepositoryPort processedEventRepository) {
