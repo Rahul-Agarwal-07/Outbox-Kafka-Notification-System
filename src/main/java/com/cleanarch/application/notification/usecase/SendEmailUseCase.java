@@ -4,6 +4,7 @@ import com.cleanarch.application.consumer.dto.EventMessage;
 import com.cleanarch.application.notification.port.EmailSenderPort;
 import com.cleanarch.application.notification.port.NotificationRepositoryPort;
 import com.cleanarch.application.notification.port.SendEmailUseCasePort;
+import com.cleanarch.domain.exception.InvalidEventException;
 import com.cleanarch.domain.model.Notification;
 import com.cleanarch.domain.model.NotificationStatus;
 import com.cleanarch.domain.model.NotificationType;
@@ -21,6 +22,8 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
 
     @Override
     public void execute(EventMessage event) {
+
+        validate(event);
 
         NotificationType type = mapEventToNotification(event);
 
@@ -78,7 +81,20 @@ public class SendEmailUseCase implements SendEmailUseCasePort {
         {
             case USER_CREATED -> NotificationType.WELCOME_EMAIL;
             case PASSWORD_CHANGED -> NotificationType.SECURITY_ALERT;
+            default -> throw new InvalidEventException("Unsupported Event Type: " + event.eventType());
         };
 
+    }
+
+    private void validate(EventMessage event)
+    {
+        if(event.payload() == null)
+            throw new InvalidEventException("Empty Event Payload");
+
+        if(event.id() == null)
+            throw new InvalidEventException("Event Id must not be null");
+
+        if(event.eventType() == null)
+            throw new InvalidEventException("Event Type must be non-null");
     }
 }
